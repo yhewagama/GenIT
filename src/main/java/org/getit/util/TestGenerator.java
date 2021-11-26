@@ -17,7 +17,7 @@ public class TestGenerator {
 
     static String packageName = "hackathon";
 
-    public void generateTests (TestSuite testSuite)
+    public String generateTests (TestSuite testSuite)
         throws IOException {
         VelocityEngine velocityEngine = new VelocityEngine();
         velocityEngine.init();
@@ -42,6 +42,6 @@ public class TestGenerator {
         fileWriter.flush();
         fileWriter.close();
 
-//        return true;
+        return className;
     }
 }
