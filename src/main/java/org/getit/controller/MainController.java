@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.getit.model.TestCase;
+import org.getit.model.TestSuite;
+import org.getit.util.TestGenerator;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +55,8 @@ public class MainController {
 		String[] pathArray = new String[]{"/pet/{petId}/uploadImage", "/pet/{petId}", "/pet/findByTags", "/store/order", "/store/order/{orderId}", "/user/{username}", "/user/login"};
 		List<String> pathsList = new ArrayList<>(Arrays.asList(pathArray));
 
+    TestGenerator testGenerator = new TestGenerator();
+
 //		OpenAPI openAPI = new OpenAPIV3Parser().read(swaggerOpenAPIDocUrl);
 
 //		 SwaggerParseResult result = new OpenAPIParser().readContents(swaggerOpenAPIDocUrl, null, null);
@@ -81,10 +86,11 @@ public class MainController {
         Iterator<Entry<String, PathItem>> keys = openAPI.getPaths().entrySet().iterator();
 
         while (keys.hasNext()) {
+            TestSuite testSuite = new TestSuite();
             Entry<String, PathItem> entry = keys.next();
             if (entry != null && !pathsList.contains(entry.getKey())) {
             	if (entry.getValue().getPost() != null) {
-								System.out.println("POST: " + entry.getKey());
+								String path = entry.getKey();
             		if (entry.getValue().getPost().getRequestBody() != null && entry.getValue().getPost().getResponses().get("200") != null) {
             			Schema requestModel = entry.getValue().getPost().getRequestBody().getContent().get("application/json").getSchema();
 									Schema responseModel = entry.getValue().getPost().getResponses().get("200").getContent().get("application/json").getSchema();
@@ -108,6 +114,15 @@ public class MainController {
 										//We can write any JSONArray or JSONObject instance to the file
 										file.write(responseJsonExample);
 										file.flush();
+
+										TestCase testCase = new TestCase();
+										testCase.setMethod("post");
+										testCase.setUrl(baseUrl + path);
+										testCase.setResponse_path(responseJsonFilePath);
+										testCase.setRequest_body(requestJsonExample);
+
+
+//                    testGenerator.generateTests(baseUrl, path, "post", responseJsonFilePath);
 
 									} catch (IOException e) {
 										e.printStackTrace();
