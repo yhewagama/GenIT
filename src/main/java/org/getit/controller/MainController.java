@@ -50,7 +50,7 @@ public class MainController {
 	static String baseUrl = "https://petstore.swagger.io/v2";
 
 	@GetMapping("/runApiTests")
-	public OpenAPI genOpenAPIObj(@RequestBody String swaggerOpenAPIDocUrl) {
+	public OpenAPI genOpenAPIObj(@RequestBody String swaggerOpenAPIDocUrl) throws IOException {
 
 		String[] pathArray = new String[]{"/pet/{petId}/uploadImage", "/pet/{petId}", "/pet/findByTags", "/store/order", "/store/order/{orderId}", "/user/{username}", "/user/login"};
 		List<String> pathsList = new ArrayList<>(Arrays.asList(pathArray));
@@ -148,7 +148,7 @@ public class MainController {
 //								System.out.println("PUT: " + entry.getKey());
 							}
             	
-            	
+            	testGenerator.generateTests(testSuite);
             	
             	
                 pathCallableList.add(pathCallable(entry.getKey(), entry.getValue()));
