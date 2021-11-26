@@ -66,16 +66,6 @@ public class MainController {
 		OpenAPI openAPI = new OpenAPIV3Parser().read(swaggerOpenAPIDocUrl);
 		
 		Map<String, Schema> definitions = openAPI.getComponents().getSchemas();
-//		Schema model = openAPI.getPaths().entrySet().iterator().next().getValue().getPost().getRequestBody().getContent().get("application/json").getSchema();
-////		Schema model = definitions.get("properties");
-//		Example example = ExampleBuilder.fromSchema(model, definitions);
-//		SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
-//		Json.mapper().registerModule(simpleModule);
-//		String jsonExample = Json.pretty(example);
-//		System.out.println(jsonExample);
-
-//		System.out.println(openAPI.getPaths().entrySet().iterator().next().getKey().replaceAll("[^0-9a-zA-Z:,]+", ""));
-//		System.out.println(openAPI.getPaths().entrySet().iterator().next().getValue());
 		
 		
 		
@@ -87,10 +77,11 @@ public class MainController {
 
         while (keys.hasNext()) {
             TestSuite testSuite = new TestSuite();
+            ArrayList testCases = new ArrayList();
             Entry<String, PathItem> entry = keys.next();
             if (entry != null && !pathsList.contains(entry.getKey())) {
+							String path = entry.getKey();
             	if (entry.getValue().getPost() != null) {
-								String path = entry.getKey();
             		if (entry.getValue().getPost().getRequestBody() != null && entry.getValue().getPost().getResponses().get("200") != null) {
             			Schema requestModel = entry.getValue().getPost().getRequestBody().getContent().get("application/json").getSchema();
 									Schema responseModel = entry.getValue().getPost().getResponses().get("200").getContent().get("application/json").getSchema();
@@ -121,6 +112,7 @@ public class MainController {
 										testCase.setResponse_path(responseJsonFilePath);
 										testCase.setRequest_body(requestJsonExample);
 
+										testCases.add(testCase);
 
 //                    testGenerator.generateTests(baseUrl, path, "post", responseJsonFilePath);
 
@@ -147,8 +139,10 @@ public class MainController {
 							} else if (entry.getValue().getPut() != null) {
 //								System.out.println("PUT: " + entry.getKey());
 							}
-            	
-            	testGenerator.generateTests(testSuite);
+
+            		testSuite.setPath(path);
+            		testSuite.setTestCases(testCases);
+            		testGenerator.generateTests(testSuite);
             	
             	
                 pathCallableList.add(pathCallable(entry.getKey(), entry.getValue()));

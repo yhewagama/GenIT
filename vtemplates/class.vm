@@ -1,6 +1,7 @@
 import static io.restassured.RestAssured.get;
 
-import io.restassured.RestAssured.*;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.matcher.RestAssuredMatchers.*;
 import org.hamcrest.Matchers.*;
 import io.restassured.module.jsv.JsonSchemaValidator;
@@ -15,6 +16,19 @@ public void ${testCase.getMethod()}${path}() {
     #if($testCase.getMethod() == "get")
     get("${testCase.url}").then().statusCode(200).assertThat()
     .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("$testCase.getResponse_path()"));
+    #elseif($testCase.getMethod() == "post")
+    #set ($request_body=${testCase.getRequest_body()})
+    RestAssured
+        .given()
+            .baseUri("${testCase.getUrl()}")
+            .contentType(ContentType.JSON)
+            .body($request_body)
+        .when()
+            .post()
+        .then()
+            .assertThat()
+            .statusCode(200)
+            .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("$testCase.getResponse_path()"))
     #end
 }
 #end
