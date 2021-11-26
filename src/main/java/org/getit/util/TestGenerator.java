@@ -29,7 +29,7 @@ public class TestGenerator {
         String className = testSuite.getPath().replaceAll("[^a-zA-Z0-9]", "");
 
         context.put("className", className);
-
+        context.put("packageName", packageName);
         context.put("path", testSuite.getPath().replaceAll("[^a-zA-Z0-9]", ""));
         context.put("testCases", testSuite.getTestCases());
 
