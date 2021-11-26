@@ -54,6 +54,7 @@ public class MainController {
 
 		String[] pathArray = new String[]{"/pet/{petId}/uploadImage", "/pet/{petId}", "/pet/findByTags", "/store/order", "/store/order/{orderId}", "/user/{username}", "/user/login"};
 		List<String> pathsList = new ArrayList<>(Arrays.asList(pathArray));
+		ArrayList<String> testFiles = new ArrayList<String>();
 
     TestGenerator testGenerator = new TestGenerator();
 
@@ -112,7 +113,6 @@ public class MainController {
 										testCase.setResponse_path(responseJsonFilePath);
 										testCase.setRequest_body(requestJsonExample);
 
-										testCases.add(testCase);
 
 //                    testGenerator.generateTests(baseUrl, path, "post", responseJsonFilePath);
 
@@ -142,12 +142,13 @@ public class MainController {
 
             		testSuite.setPath(path);
             		testSuite.setTestCases(testCases);
-            		testGenerator.generateTests(testSuite);
-            	
+				String tests = testGenerator.generateTests(testSuite);
+				testFiles.add(tests);
             	
                 pathCallableList.add(pathCallable(entry.getKey(), entry.getValue()));
             }
         }
+		System.out.println(testFiles.toArray().toString());
 
         ExecutorService executorService = Executors.newFixedThreadPool(5);
 
