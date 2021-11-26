@@ -1,0 +1,21 @@
+import static io.restassured.RestAssured.get;
+
+import io.restassured.RestAssured.*;
+import io.restassured.matcher.RestAssuredMatchers.*;
+import org.hamcrest.Matchers.*;
+import io.restassured.module.jsv.JsonSchemaValidator;
+
+import org.junit.Test;
+
+public class ${className} {
+
+#foreach( $testCase in $testCases )
+@Test
+public void ${testCase.getMethod()}${path}() {
+    #if($testCase.getMethod() == "get")
+    get("${testCase.url}").then().statusCode(200).assertThat()
+    .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("$testCase.getResponse_path()"));
+    #end
+}
+#end
+}

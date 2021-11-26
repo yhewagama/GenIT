@@ -1,4 +1,4 @@
-package org.getit.service;
+package org.getit;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

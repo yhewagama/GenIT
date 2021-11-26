@@ -1,5 +1,10 @@
-package org.getit.service;
+package org.getit.controller;
 
+import io.swagger.models.Response;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
+import java.io.FileWriter;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -39,9 +44,13 @@ import java.util.concurrent.*;
 @RequestMapping("/")
 public class MainController {
 
+	static String baseUrl = "https://petstore.swagger.io/v2";
+
 	@GetMapping("/runApiTests")
 	public OpenAPI genOpenAPIObj(@RequestBody String swaggerOpenAPIDocUrl) {
-		System.out.println(swaggerOpenAPIDocUrl);
+
+		String[] pathArray = new String[]{"/pet/{petId}/uploadImage", "/pet/{petId}", "/pet/findByTags", "/store/order", "/store/order/{orderId}", "/user/{username}", "/user/login"};
+		List<String> pathsList = new ArrayList<>(Arrays.asList(pathArray));
 
 //		OpenAPI openAPI = new OpenAPIV3Parser().read(swaggerOpenAPIDocUrl);
 
@@ -71,22 +80,58 @@ public class MainController {
 //        JSONObject pathsObject = openAPI.getPaths().entrySet().iterator().next();
         Iterator<Entry<String, PathItem>> keys = openAPI.getPaths().entrySet().iterator();
 
-        while(keys.hasNext()) {
+        while (keys.hasNext()) {
             Entry<String, PathItem> entry = keys.next();
-            if (entry != null) {
-            	System.out.println(entry.getKey());
+            if (entry != null && !pathsList.contains(entry.getKey())) {
             	if (entry.getValue().getPost() != null) {
-            		if (entry.getValue().getPost().getRequestBody() != null) {
-            			Schema model = entry.getValue().getPost().getRequestBody().getContent().get("application/json").getSchema();
-//                		Schema model = definitions.get("properties");
-                		Example example = ExampleBuilder.fromSchema(model, definitions);
-                		SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
-                		Json.mapper().registerModule(simpleModule);
-                		String jsonExample = Json.pretty(example);
-                		System.out.println(jsonExample);
+								System.out.println("POST: " + entry.getKey());
+            		if (entry.getValue().getPost().getRequestBody() != null && entry.getValue().getPost().getResponses().get("200") != null) {
+            			Schema requestModel = entry.getValue().getPost().getRequestBody().getContent().get("application/json").getSchema();
+									Schema responseModel = entry.getValue().getPost().getResponses().get("200").getContent().get("application/json").getSchema();
+
+
+									Example requestExample = ExampleBuilder.fromSchema(requestModel, definitions);
+									Example responseExample = ExampleBuilder.fromSchema(responseModel, definitions);
+
+									SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
+									Json.mapper().registerModule(simpleModule);
+
+									String requestJsonExample = Json.pretty(requestExample);
+									System.out.println("request body: " + requestJsonExample);
+
+									String responseJsonExample = Json.pretty(responseExample);
+									System.out.println("response body: " + responseJsonExample);
+
+									String responseJsonFilePath = "target/classes/" + entry.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".json";
+
+									try (FileWriter file = new FileWriter(responseJsonFilePath)) {
+										//We can write any JSONArray or JSONObject instance to the file
+										file.write(responseJsonExample);
+										file.flush();
+
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+
+
             		}
-            		
-            	}
+            	} else if (entry.getValue().getGet() != null) {
+//								System.out.println("GET: " + entry.getKey());
+//								if (entry.getValue().getGet().getRequestBody() != null) {
+//									Schema model = entry.getValue().getGet().getRequestBody().getContent().get("application/json").getSchema();
+////                		Schema model = definitions.get("properties");
+//									Example example = ExampleBuilder.fromSchema(model, definitions);
+//									SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
+//									Json.mapper().registerModule(simpleModule);
+//									String jsonExample = Json.pretty(example);
+//									System.out.println(jsonExample);
+//								} else {
+//									System.out.println("no request body get");
+//
+//								}
+							} else if (entry.getValue().getPut() != null) {
+//								System.out.println("PUT: " + entry.getKey());
+							}
             	
             	
             	
@@ -117,8 +162,8 @@ public class MainController {
 	}
 	
 	public Callable pathCallable(String path, PathItem pathObject) {
-        return () -> "Create template with the path : " + path + " in thread - " + Thread.currentThread().getName() + " | from object " + pathObject;
-    }
+	    return () -> "Create template with the path : " + path + " in thread - " + Thread.currentThread().getName() + " | from object " + pathObject;
+	}
 
 
 }
