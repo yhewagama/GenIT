@@ -95,26 +95,29 @@ public class MainController {
 									Json.mapper().registerModule(simpleModule);
 
 									String requestJsonExample = Json.pretty(requestExample);
-									System.out.println("request body: " + requestJsonExample);
+//									System.out.println("request body: " + requestJsonExample);
 
 									String responseJsonExample = Json.pretty(responseExample);
-									System.out.println("response body: " + responseJsonExample);
+//									System.out.println("response body: " + responseJsonExample);
 
-									String responseJsonFilePath = "target/classes/" + entry.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".json";
+									String responseJsonFileName = entry.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".json";
+									String responseJsonFilePath = "target/classes/" + responseJsonFileName;
 
 									try (FileWriter file = new FileWriter(responseJsonFilePath)) {
 										//We can write any JSONArray or JSONObject instance to the file
 										file.write(responseJsonExample);
 										file.flush();
 
+//										JSONParser parser = new JSONParser();
+//										JSONObject json = (JSONObject) parser.parse(requestJsonExample);
+
 										TestCase testCase = new TestCase();
 										testCase.setMethod("post");
 										testCase.setUrl(baseUrl + path);
-										testCase.setResponse_path(responseJsonFilePath);
 										testCase.setRequest_body(requestJsonExample);
+										testCase.setResponse_path(responseJsonFileName);
 
-
-//                    testGenerator.generateTests(baseUrl, path, "post", responseJsonFilePath);
+										testCases.add(testCase);
 
 									} catch (IOException e) {
 										e.printStackTrace();
@@ -123,27 +126,46 @@ public class MainController {
 
             		}
             	} else if (entry.getValue().getGet() != null) {
-//								System.out.println("GET: " + entry.getKey());
-//								if (entry.getValue().getGet().getRequestBody() != null) {
-//									Schema model = entry.getValue().getGet().getRequestBody().getContent().get("application/json").getSchema();
-////                		Schema model = definitions.get("properties");
-//									Example example = ExampleBuilder.fromSchema(model, definitions);
-//									SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
-//									Json.mapper().registerModule(simpleModule);
-//									String jsonExample = Json.pretty(example);
-//									System.out.println(jsonExample);
-//								} else {
-//									System.out.println("no request body get");
-//
-//								}
-							} else if (entry.getValue().getPut() != null) {
-//								System.out.println("PUT: " + entry.getKey());
+								if (entry.getValue().getGet().getRequestBody() == null && entry.getValue().getGet().getResponses().get("200") != null) {
+									Schema responseModel = entry.getValue().getGet().getResponses().get("200").getContent().get("application/json").getSchema();
+
+									Example responseExample = ExampleBuilder.fromSchema(responseModel, definitions);
+
+									SimpleModule simpleModule = new SimpleModule().addSerializer(new JsonNodeExampleSerializer());
+									Json.mapper().registerModule(simpleModule);
+
+									String responseJsonExample = Json.pretty(responseExample);
+									System.out.println("response body: " + responseJsonExample);
+
+									String responseJsonFileName = entry.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".json";
+									String responseJsonFilePath = "target/classes/" + responseJsonFileName;
+
+									try (FileWriter file = new FileWriter(responseJsonFilePath)) {
+										//We can write any JSONArray or JSONObject instance to the file
+										file.write(responseJsonExample);
+										file.flush();
+
+										TestCase testCase = new TestCase();
+										testCase.setMethod("get");
+										testCase.setUrl(baseUrl + path);
+										testCase.setResponse_path(responseJsonFileName);
+										testCase.setRequest_body("");
+
+										testCases.add(testCase);
+
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+
+								}
 							}
 
-            		testSuite.setPath(path);
-            		testSuite.setTestCases(testCases);
-				String tests = testGenerator.generateTests(testSuite);
-				testFiles.add(tests);
+       				if (testCases.size() > 0) {
+					testSuite.setPath(path);
+					testSuite.setTestCases(testCases);
+					String tests = testGenerator.generateTests(testSuite);
+					testFiles.add(tests);
+				}
             	
                 pathCallableList.add(pathCallable(entry.getKey(), entry.getValue()));
             }

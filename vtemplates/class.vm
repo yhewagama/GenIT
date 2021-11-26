@@ -1,3 +1,5 @@
+package ${packageName};
+
 import static io.restassured.RestAssured.get;
 
 import io.restassured.RestAssured;
@@ -22,13 +24,13 @@ public void ${testCase.getMethod()}${path}() {
         .given()
             .baseUri("${testCase.getUrl()}")
             .contentType(ContentType.JSON)
-            .body($request_body)
+            .body("$request_body")
         .when()
             .post()
         .then()
             .assertThat()
             .statusCode(200)
-            .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("$testCase.getResponse_path()"))
+            .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("$testCase.getResponse_path()"));
     #end
 }
 #end
