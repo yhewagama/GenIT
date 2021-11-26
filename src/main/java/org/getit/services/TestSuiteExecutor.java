@@ -1,19 +1,26 @@
 package org.getit.services;
 
+import org.getit.services.mock.petfindByStatusMock;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+@Service
 public class TestSuiteExecutor implements ITestSuiteExecutor{
-    private String packageName = "test.";
+    private String packageName = "org.getit.services.mock.";
 
     @Override
     public void textExecutor(ArrayList<String> classList) throws ClassNotFoundException {
         ArrayList<Class> classes = new ArrayList<Class>();
 
-        for (String clsName : classList
+        ArrayList<String> classListArr = new ArrayList<String>();
+        classListArr.add("petfindByStatusMock");
+        classListArr.add("storeinventoryMock");
+
+        for (String clsName : classListArr
         ) {
             try {
                 classes.add(Class.forName(packageName + clsName));
