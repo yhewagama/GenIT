@@ -5,12 +5,14 @@ import io.restassured.module.jsv.JsonSchemaValidator;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
 
 public class petfindByStatusMock {
 
 @Test
 public void getpetfindByStatus() {
-        get("https://petstore.swagger.io/v2/pet/findByStatus").then().statusCode(200).assertThat()
-    .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("petfindByStatus.json"));
+    String endpoint="https://reqres.in/api/users?page=1";
+    var response=given().when().get(endpoint).then();
+    response.log().body();
     }
 }

@@ -87,8 +87,8 @@ public class MainController {
 //									System.out.println("request body: " + requestJsonExample);
 
                         String responseJsonExample = Json.pretty(responseExample);
-                        JSONObject json = new JSONObject(responseJsonExample);
-                        System.out.println(json.valueToString(responseJsonExample));
+//                        JSONObject json = new JSONObject(responseJsonExample);
+//                        System.out.println(json.valueToString(responseJsonExample));
 //									System.out.println("response body: " + responseJsonExample);
 
                         String responseJsonFileName = entry.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".json";
